@@ -1,15 +1,20 @@
-FROM node:16
+FROM node:16 AS build
 
-WORKDIR /devops-django-react-task/frontend/
+WORKDIR /DevOps-Task/frontend/
+
+COPY package*.json ./
+
+RUN npm install
 
 COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
 
-WORKDIR /usr/share/nginx/html
+FROM nginx:1.22
 
-COPY --from=builder /devops-django-react-task/frontend/build .
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=build /DevOps-Task/frontend/build /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]
